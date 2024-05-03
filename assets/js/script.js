@@ -6,19 +6,21 @@ let nextId = JSON.parse(localStorage.getItem("nextId"));
 function generateTaskId() { 
     if (nextId === null) {
         nextId = 1;
+        return nextId;
     }
     nextId++;
+    return nextId;
 }
 
 // Todo: create a function to create a task card
 function createTaskCard(task) {
     let cardClass = '';
-    let taskDueDate = dayjs(task.taskDueTake);
+    let taskDueDate = dayjs(task.taskDueDate);
     let today = dayjs();
 
     if (taskDueDate.isBefore(today, 'day')) {
         cardClass = 'bg-danger';
-    } else if (taskDueDate.isSame(now, 'day') || taskDueDate.isBefore(now.add(3, 'day'))) {
+    } else if (taskDueDate.isSame(today, 'day') || taskDueDate.isBefore(today.add(3, 'day'))) {
         cardClass = 'bg-warning';
     }
     if (task.status === 'done') {
@@ -56,8 +58,8 @@ function renderTaskList() {
 function handleAddTask(event){
     event.preventDefault();
     let title = $("#task-title").val();
-    let dueDate = $("task-due-date").val();
-    let description = $("#task-description");
+    let dueDate = $("#task-due-date").val();
+    let description = $("#task-description").val();
     let newTask = {
         id:generateTaskId(),
         taskTitle: title,
@@ -95,5 +97,33 @@ function handleDrop(event, ui) {
 
 // Todo: when the page loads, render the task list, add event listeners, make lanes droppable, and make the due date field a date picker
 $(document).ready(function () {
+    renderTaskList();
+    $("#formModal").on("hidden.bs.modal", function () {
+        $(this).find("form")[0].reset();
+    });
+    $(".delete-btn").click(handleDeleteTask);
+    $(".lane").droppable({
+        accept: ".task-card",
+        drop: handleDrop
+    });
 
+    $("#task-due-date").datepicker({
+        dateFormat: "yy-mm-dd",
+    });
+
+    $(".btn-primary").click(handleAddTask);
+
+    $(".modal-header .close").click(function () {
+        $("#formModal").modal("hide");
+    });
 });
+
+$(document).on("click", ".delete-btn", function(event) {
+    let taskId = $(event.target).data("task-id");
+    taskList = taskList.filter(task => task.id !== taskId);
+    localStorage.setItem("tasks", JSON.stringify(taskList));
+    renderTaskList();
+});
+
+//had issues with buttons not working so I added some code that google said would help and it did so im keeping it
+//a bit redundant but it fixed my buttons so I dont know 
