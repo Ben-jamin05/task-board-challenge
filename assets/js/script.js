@@ -50,7 +50,7 @@ function renderTaskList() {
     $(".task-card").draggable({
         revert:"invalid",
         cursor: "move",
-        zIndex: 1 //change if not working 
+        zIndex: 1 
     });
 }
 
